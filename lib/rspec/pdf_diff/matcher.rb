@@ -63,7 +63,7 @@ RSpec::Matchers.define :match_original do
   failure_message do
     # TODO: State which pages didn't match and give paths to the original,
     # result, and diff
-    <<-EOS.strip_heredoc
+    <<-EOS
       Expected that result would match original, but it did not.
 
       If the result is correct, delete the existing original and re-run the
