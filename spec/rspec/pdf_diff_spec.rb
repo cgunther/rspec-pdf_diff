@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'tempfile'
 require 'prawn'
 
-describe RSpec::PDFDiff do
+RSpec.describe RSpec::PDFDiff do
   after do
     # Clean up after ourselves
     FileUtils.rm_r 'spec/support/originals' if Dir.exist?('spec/support/originals')
