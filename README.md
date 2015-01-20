@@ -21,6 +21,9 @@ Or install it yourself as:
 Both [ImageMagick](http://www.imagemagick.org/) and
 [Ghostscript](http://www.ghostscript.com/) must be installed on the system.
 
+ImageMagick version 6.8.1-0 or greater is required as we rely on the exit code
+of the `compare` utility to determine if the PDFs are identical.
+
 ## Usage
 
 Generate your PDF to a file, then call the `match_original` matcher on the
