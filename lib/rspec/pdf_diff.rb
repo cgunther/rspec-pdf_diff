@@ -1,3 +1,4 @@
+require "rspec/core"
 require "rspec/pdf_diff/matcher"
 require "rspec/pdf_diff/version"
 
