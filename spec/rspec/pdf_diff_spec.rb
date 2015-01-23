@@ -16,11 +16,11 @@ RSpec.describe RSpec::PDFDiff do
         text 'This is a test'
       end
 
-      expect(Dir['spec/support/originals/**/*.png'].length).to eq(0)
+      expect(File.exist?('spec/support/originals/test.pdf')).to be_falsey
 
       expect(tmp.path).to match_original('test')
 
-      expect(Dir['spec/support/originals/**/*.png'].length).to eq(1)
+      expect(File.exist?('spec/support/originals/test.pdf')).to be_truthy
     ensure
       tmp.unlink
     end
@@ -66,10 +66,11 @@ RSpec.describe RSpec::PDFDiff do
           text 'This is not a test'
         end
 
-        expect(result.path).to_not match_original('test')
+        expect(match_original('test').matches?(result.path)).to be_falsey
 
-        expect(Dir['tmp/**/*.result-*.png'].length).to eq(1)
-        expect(Dir['tmp/**/*.diff.png'].length).to eq(1)
+        expect(Dir['tmp/test/original*.png'].length).to eq(1)
+        expect(Dir['tmp/test/result*.png'].length).to eq(1)
+        expect(Dir['tmp/test/diff*.png'].length).to eq(1)
       ensure
         result.unlink
       end

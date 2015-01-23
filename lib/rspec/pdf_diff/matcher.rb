@@ -9,32 +9,30 @@ module RSpec
       end
 
       def matches?(path_to_result_pdf)
-        # Convert result to PNG
-        FileUtils.mkdir_p(File.dirname(path_to_result_image))
+        if File.exist?(path_to_original_pdf)
+          FileUtils.mkdir_p("tmp/#{name}")
 
-        Cocaine::CommandLine.new(
-          'convert',
-          ':in :out'
-        ).run(
-          in: path_to_result_pdf,
-          out: path_to_result_image
-        )
+          # Convert original to PNG
+          convert_command.run(
+            in: path_to_original_pdf,
+            out: path_to_original_image
+          )
 
-        if File.exist?(path_to_result_image)
-          # It was only a 1 page PDF, so it used the output filename exactly.
-          # Rename it to include a page number, so it's the same naming as a
-          # multi-page PDF.
-          FileUtils.mv path_to_result_image, path_to_result_image.gsub('.png', '-0.png')
-        end
+          # Convert result to PNG
+          convert_command.run(
+            in: path_to_result_pdf,
+            out: path_to_result_image
+          )
 
-        all_matched = true
+          all_matched = true
 
-        Dir.glob(path_to_result_image.gsub('.png', '') + '-*').each do |result_image|
-          page = /\-(\d)+\.png\z/.match(result_image)[1]
+          Dir.glob(path_to_result_image.gsub('.png', '') + '*').each do |result_image|
+            if /\-(\d)+\.png\z/ =~ result_image
+              page = $1
+            end
 
-          original_image = path_to_original_image(page)
+            original_image = path_to_original_image(page)
 
-          if File.exist?(original_image)
             # Compare images
             diff_image = path_to_diff_image(page)
 
@@ -48,22 +46,22 @@ module RSpec
 
             # compare returns 0 on match, 1 on different
             all_matched &= (compare_command.exit_status == 0)
-          else
-            # No original was saved, accepting by default
-
-            # TODO: If it's the first page, we can probably assume it's the first
-            # run and just accept it, but if it's an inner page, we should probably
-            # fail as it'd be a new page we weren't expecting.
-
-            # Make the result the original
-            FileUtils.mkdir_p(File.dirname(original_image))
-            FileUtils.mv result_image, original_image
           end
+
+          # TODO: Clean up result/diff images that matched the original
+
+          all_matched
+        else
+          # No original was saved, accepting by default
+
+          # TODO: If it's the first page, we can probably assume it's the first
+          # run and just accept it, but if it's an inner page, we should probably
+          # fail as it'd be a new page we weren't expecting.
+
+          # Make the result the original
+          FileUtils.mkdir_p(File.dirname(path_to_original_pdf))
+          FileUtils.mv path_to_result_pdf, path_to_original_pdf
         end
-
-        # TODO: Clean up result/diff images that matched the original
-
-        all_matched
       end
 
       def failure_message
@@ -81,6 +79,13 @@ module RSpec
 
       attr_reader :name
 
+      def convert_command
+        @convert_command ||= Cocaine::CommandLine.new(
+          'convert',
+          ':in :out'
+        )
+      end
+
       def compare_command
         @compare_command ||= Cocaine::CommandLine.new(
           'compare',
@@ -93,22 +98,30 @@ module RSpec
         )
       end
 
-      def path_to_original_image(page)
-        Pathname.new('spec/support/originals').join(
-          "#{name}-#{page}.png",
-        ).to_s
+      def path_to_original_pdf
+        Pathname.new('spec/support/originals').join("#{name}.pdf").to_s
+      end
+
+      def path_to_original_image(page = nil)
+        filename = 'original'
+        if page
+          filename += "-#{page}"
+        end
+
+        Pathname.new('tmp').join(name, "#{filename}.png").to_s
       end
 
       def path_to_result_image
-        Pathname.new('tmp').join(
-          "#{name}.result.png",
-        ).to_s
+        Pathname.new('tmp').join(name, 'result.png').to_s
       end
 
       def path_to_diff_image(page)
-        Pathname.new('tmp').join(
-          "#{name}-#{page}.diff.png",
-        ).to_s
+        filename = 'diff'
+        if page
+          filename += "-#{page}"
+        end
+
+        Pathname.new('tmp').join(name, "#{filename}.png").to_s
       end
 
     end
