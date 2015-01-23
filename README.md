@@ -27,7 +27,7 @@ of the `compare` utility to determine if the PDFs are identical.
 ## Usage
 
 Generate your PDF to a file, then call the `match_original` matcher on the
-path:
+path, passing a name of the stored original to match.
 
 ```ruby
 tmp = Tempfile.new(['document', '.pdf'])
@@ -35,7 +35,7 @@ begin
   # Assuming my_document is an instance of a Prawn::Document
   my_document.render_file(tmp.path)
 
-  expect(tmp.path).to match_original
+  expect(tmp.path).to match_original('Invoice')
 ensure
   tmp.unlink
 end

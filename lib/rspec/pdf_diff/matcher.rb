@@ -4,6 +4,10 @@ module RSpec
   module PDFDiff
     class MatchOriginalMatcher
 
+      def initialize(name)
+        @name = name
+      end
+
       def matches?(path_to_result_pdf)
         # Convert result to PNG
         FileUtils.mkdir_p(File.dirname(path_to_result_image))
@@ -75,6 +79,8 @@ module RSpec
 
       private
 
+      attr_reader :name
+
       def compare_command
         @compare_command ||= Cocaine::CommandLine.new(
           'compare',
@@ -89,39 +95,20 @@ module RSpec
 
       def path_to_original_image(page)
         Pathname.new('spec/support/originals').join(
-          "#{sanitized_filename}-#{page}.png",
+          "#{name}-#{page}.png",
         ).to_s
       end
 
       def path_to_result_image
         Pathname.new('tmp').join(
-          "#{sanitized_filename}.result.png",
+          "#{name}.result.png",
         ).to_s
       end
 
       def path_to_diff_image(page)
         Pathname.new('tmp').join(
-          "#{sanitized_filename}-#{page}.diff.png",
+          "#{name}-#{page}.diff.png",
         ).to_s
-      end
-
-      def sanitized_filename
-        filename_for(RSpec.current_example.metadata).gsub(/[^\w\-\/]+/, '_')
-      end
-
-      def filename_for(metadata)
-        description = metadata[:description]
-        example_group = if metadata.key?(:example_group)
-          metadata[:example_group]
-        else
-          metadata[:parent_example_group]
-        end
-
-        if example_group
-          [filename_for(example_group), description].join('/')
-        else
-          description
-        end
       end
 
     end

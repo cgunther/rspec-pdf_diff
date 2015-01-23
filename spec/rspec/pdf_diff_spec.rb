@@ -18,7 +18,7 @@ RSpec.describe RSpec::PDFDiff do
 
       expect(Dir['spec/support/originals/**/*.png'].length).to eq(0)
 
-      expect(tmp.path).to match_original
+      expect(tmp.path).to match_original('test')
 
       expect(Dir['spec/support/originals/**/*.png'].length).to eq(1)
     ensure
@@ -35,13 +35,13 @@ RSpec.describe RSpec::PDFDiff do
       pdf.render_file(original.path)
 
       # Quick way to store the PDF
-      expect(original.path).to match_original
+      expect(original.path).to match_original('test')
 
       result = Tempfile.new(['result', '.pdf'])
       begin
         pdf.render_file(result.path)
 
-        expect(result.path).to match_original
+        expect(result.path).to match_original('test')
       ensure
         result.unlink
       end
@@ -58,7 +58,7 @@ RSpec.describe RSpec::PDFDiff do
       end
 
       # Quick way to store the PDF
-      expect(original.path).to match_original
+      expect(original.path).to match_original('test')
 
       result = Tempfile.new(['result', '.pdf'])
       begin
@@ -66,7 +66,7 @@ RSpec.describe RSpec::PDFDiff do
           text 'This is not a test'
         end
 
-        expect(result.path).to_not match_original
+        expect(result.path).to_not match_original('test')
 
         expect(Dir['tmp/**/*.result-*.png'].length).to eq(1)
         expect(Dir['tmp/**/*.diff.png'].length).to eq(1)
