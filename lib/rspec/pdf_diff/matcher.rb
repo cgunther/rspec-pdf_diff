@@ -1,4 +1,4 @@
-require 'cocaine'
+require 'terrapin'
 
 module RSpec
   module PDFDiff
@@ -80,14 +80,14 @@ module RSpec
       attr_reader :name
 
       def convert_command
-        @convert_command ||= Cocaine::CommandLine.new(
+        @convert_command ||= Terrapin::CommandLine.new(
           'convert',
           ':in PNG24::out'
         )
       end
 
       def compare_command
-        @compare_command ||= Cocaine::CommandLine.new(
+        @compare_command ||= Terrapin::CommandLine.new(
           'compare',
           # Get the absolute error count of the two images
           # (number of different pixels)
