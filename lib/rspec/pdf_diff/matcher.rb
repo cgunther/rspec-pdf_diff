@@ -82,7 +82,7 @@ module RSpec
       def convert_command
         @convert_command ||= Cocaine::CommandLine.new(
           'convert',
-          ':in :out'
+          ':in PNG24::out'
         )
       end
 
