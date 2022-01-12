@@ -82,7 +82,7 @@ module RSpec
       def convert_command
         @convert_command ||= Terrapin::CommandLine.new(
           'convert',
-          ':in PNG24::out'
+          ':in PNG32::out'
         )
       end
 
